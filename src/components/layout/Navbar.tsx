@@ -20,8 +20,14 @@ useEffect(() => {
   return () => window.removeEventListener("scroll", handleScroll);
 }, []);
 
+type NavLink = {
+  href: string;
+  label: string;
+  show: boolean;
+  variant?: "button";
+};
+const links = useMemo<NavLink[]>(() => {
 
-  const links = useMemo(() => {
     const common = [
       { href: "/", label: "الرئيسية", show: true },
       { href: "/craftsmen", label: "الصنايعية", show: role === "client" },
