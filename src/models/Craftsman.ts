@@ -8,6 +8,7 @@ export interface ICraftsman extends Document {
   address?: string;
   status?: "available" | "busy";
   isApproved?: boolean;
+  idCardImage?: string;
   profileImage?: string;
   workImages?: string[];
 }
@@ -20,6 +21,7 @@ const CraftsmanSchema = new Schema<ICraftsman>({
   address: { type: String, default: "" },
   status: { type: String, enum: ["available", "busy"], default: "busy" },
   isApproved: { type: Boolean, default: false },
+  idCardImage: { type: String, default: "" },
   profileImage: { type: String, default: "" },
   workImages: { type: [String], default: [] },
 }, { timestamps: true });

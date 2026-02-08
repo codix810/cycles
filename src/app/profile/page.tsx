@@ -1,156 +1,148 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
 export default function ProfilePage() {
   const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [modalImg, setModalImg] = useState<string | null>(null);
+const [stats, setStats] = useState<any>(null);
+const [userStats, setUserStats] = useState<any>(null);
 
-  useEffect(() => {
-    const load = async () => {
-      const res = await fetch("/api/profile");
-      const d = await res.json();
-      setData(d);
-      setLoading(false);
-    };
-    load();
-  }, []);
+useEffect(() => {
+  fetch("/api/profile").then(r => r.json()).then(setData);
+  fetch("/api/craftsmen/stats").then(r => r.json()).then(setStats);
+    fetch("/api/user/stats").then(r => r.json()).then(setUserStats);
 
-  const handleDelete = async () => {
-    if (!confirm("هل أنت متأكد من حذف الحساب؟")) return;
-    await fetch("/api/delete-account", { method: "DELETE" });
-    window.location.href = "/login";
-  };
+}, []);
 
-  const handleLogout = async () => {
-    await fetch("/api/auth/logout");
-    window.location.href = "/login";
-  };
 
-  if (loading)
-    return <p className="p-10 text-xl text-center animate-pulse">جاري التحميل...</p>;
-  if (data?.error)
-    return <p className="p-10 text-xl text-red-500 text-center">{data.error}</p>;
+
+  if (!data) return <p className="p-10 text-center">جاري التحميل...</p>;
 
   const { role, user, craftsman } = data;
 
-  const Card = ({ children }: any) => (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-white shadow-lg p-6 rounded-2xl mb-6 border border-gray-100 backdrop-blur-sm"
-    >
-      {children}
-    </motion.div>
-  );
-
-  const openModal = (img: string) => setModalImg(img);
-  const closeModal = () => setModalImg(null);
-
   return (
-    <div className="max-w-3xl mx-auto p-4 mt-10">
-      <h1 className="text-4xl font-bold mb-8 text-center bg-gradient-to-r from-blue-600 to-indigo-500 text-transparent bg-clip-text">
-        الملف الشخصي
-      </h1>
+    <div className="min-h-screen bg-gray-50 flex mt-20">
 
-      {/* بيانات المستخدم */}
-      <Card>
-        <h2 className="text-2xl font-bold mb-4 text-blue-700">بيانات الحساب</h2>
-        <p><strong>الاسم:</strong> {user.name}</p>
-        <p><strong>الإيميل:</strong> {user.email}</p>
-        <p><strong>رقم الهاتف:</strong> {user.phone}</p>
-        <p><strong>الدور:</strong> {role}</p>
-
-        <div className="flex gap-3 mt-5">
-         <Link
-            href="profile/edit"
-            className="bg-blue-600 text-white px-6 py-3 rounded-xl text-lg font-bold shadow hover:bg-blue-700"
-          >
-            تعديل البيانات
-          </Link>
-          <button
-            onClick={handleLogout}
-            className="bg-gray-600 text-white px-4 py-2 rounded-xl hover:bg-gray-700 transition"
-          >
-            تسجيل خروج
-          </button>
-          <button
-            onClick={handleDelete}
-            className="bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700 transition"
-          >
-            حذف الحساب
-          </button>
+      {/* ===== SIDEBAR ===== */}
+      <aside className="w-72 bg-[#0F766E] text-white p-6 hidden md:flex flex-col">
+        <div className="text-center mb-8">
+          <img src={craftsman?.profileImage || "/avatar.png"} className="w-24 h-24 mx-auto rounded-full border-4 border-white" />
+          <h2 className="mt-3 font-bold text-lg">{user.name}</h2>
+          <p className="text-sm opacity-80">{role === "craftsman" ? craftsman.jobTitle : "مستخدم"}</p>
         </div>
-      </Card>
 
-      {/* بيانات الصنايعي */}
-      {role === "craftsman" && craftsman && (
-        <Card>
-          <h2 className="text-2xl font-bold mb-4 text-blue-700">بيانات الصنايعي</h2>
-          <p><strong>مجال الشغل:</strong> {craftsman.jobTitle}</p>
-          <p><strong>الوصف:</strong> {craftsman.description}</p>
-          <p><strong>سنين الخبرة:</strong> {craftsman.experienceYears}</p>
-          <p><strong>العنوان:</strong> {craftsman.address}</p>
-          <p><strong>الحالة:</strong> {craftsman.status}</p>
-          <p><strong>موافقة الأدمن:</strong> {craftsman.isApproved ? "✔️ مقبول" : "❌ تحت المراجعة"}</p>
+        <nav className="space-y-3 text-sm">
+          <Link href="/profile" className="block hover:bg-white/10 p-2 rounded">الملف الشخصي</Link>
+          <Link href="/profile/edit" className="block hover:bg-white/10 p-2 rounded">تعديل البيانات</Link>
+          {role === "craftsman" && (
+            <>
+              <Link href="/craftsman/bookings" className="block hover:bg-white/10 p-2 rounded">الطلبات</Link>
+              <Link href="/craftsman/services" className="block hover:bg-white/10 p-2 rounded">الخدمات</Link>
+            </>
+          )}
+          <button onClick={() => fetch("/api/auth/logout").then(()=>location.href="/login")} className="w-full text-left hover:bg-red-500/30 p-2 rounded mt-4">تسجيل خروج</button>
+        </nav>
+      </aside>
 
-          <div className="mt-6">
-            <h3 className="font-bold mb-3 text-lg">الصورة الشخصية</h3>
-            <motion.img
-              whileHover={{ scale: 1.05 }}
-              src={craftsman.profileImage}
-              onClick={() => openModal(craftsman.profileImage)}
-              className="w-40 rounded-xl cursor-pointer shadow"
-            />
+      {/* ===== CONTENT ===== */}
+      <main className="flex-1 p-6 space-y-6">
+
+        {/* HEADER CARD */}
+        <div className="bg-white rounded-2xl shadow p-6 flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold">مرحباً، {user.name}</h1>
+            <p className="text-gray-500">{role === "craftsman" ? "لوحة تحكم الصنايعي" : "لوحة تحكم المستخدم"}</p>
           </div>
+          <Link href="/profile/edit" className="bg-teal-600 text-white px-4 py-2 rounded-xl">تعديل</Link>
+        </div>
 
-          <div className="mt-6">
-            <h3 className="font-bold mb-3 text-lg">صورة البطاقة</h3>
-            <motion.img
-              whileHover={{ scale: 1.05 }}
-              src={craftsman.idCardImage}
-              onClick={() => openModal(craftsman.idCardImage)}
-              className="w-52 rounded-xl cursor-pointer shadow"
-            />
-          </div>
+        {/* ==== المستخدم العادي ==== */}
+{role !== "craftsman" && userStats && (
+  <div className="grid md:grid-cols-4 gap-6">
+    <StatCard title="عدد الطلبات" value={userStats.total} />
+    <StatCard title="طلبات مكتملة" value={userStats.completed} />
+    <StatCard title="طلبات جارية" value={userStats.ongoing} />
+    <StatCard title="إجمالي المدفوع" value={`₺ ${userStats.spent}`} />
+  </div>
+        )}
 
-          <div className="mt-6">
-            <h3 className="font-bold mb-3 text-lg">صور الشغل</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {craftsman.workImages.map((img: string, i: number) => (
-                <motion.img
-                  key={i}
-                  whileHover={{ scale: 1.05 }}
-                  src={img}
-                  onClick={() => openModal(img)}
-                  className="rounded-xl w-full cursor-pointer shadow"
-                />
-              ))}
-            </div>
-          </div>
-        </Card>
-      )}
+        {/* ==== الصنايعي ==== */}
+          {role === "craftsman" && craftsman && stats && (
 
-      {/* Modal للصور */}
-      {modalImg && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/70 backdrop-blur flex items-center justify-center z-50"
-          onClick={closeModal}
-        >
-          <motion.img
-            initial={{ scale: 0.7 }}
-            animate={{ scale: 1 }}
-            src={modalImg}
-            className="max-w-[90%] max-h-[90%] rounded-2xl shadow-2xl"
-          />
-        </motion.div>
-      )}
+          <>
+   <div className="grid md:grid-cols-4 gap-6">
+    <StatCard title="التقييم" value={`⭐ ${stats.rating}`} />
+    <StatCard title="طلبات منجزة" value={stats.completed} />
+    <StatCard title="طلبات قيد التنفيذ" value={stats.inProgress} />
+    <StatCard title="إجمالي الأرباح" value={`₺ ${stats.earnings}`} />
+  </div>
+
+            {/* نبذة */}
+<Card>
+  <h3 className="font-bold text-lg mb-4">التخصص والخبره</h3>
+
+  <div className="grid md:grid-cols-3 gap-6 text-sm">
+
+    <div className="bg-gray-50 p-4 rounded-xl">
+      <p className="text-gray-500 mb-1">التخصص</p>
+      <p className="font-bold text-teal-700">{craftsman.jobTitle}</p>
+    </div>
+
+    <div className="bg-gray-50 p-4 rounded-xl">
+      <p className="text-gray-500 mb-1">سنين الخبرة</p>
+      <p className="font-bold text-teal-700">{craftsman.experienceYears} سنة</p>
+    </div>
+
+    <div className="bg-gray-50 p-4 rounded-xl">
+      <p className="text-gray-500 mb-1">الحالة</p>
+      <p className={`font-bold ${craftsman.isApproved ? "text-green-600" : "text-orange-500"}`}>
+        {craftsman.isApproved ? "معتمد" : "قيد المراجعة"}
+      </p>
+    </div>
+
+  </div>
+
+  <div className="mt-6">
+    <p className="text-gray-500 mb-1">نبذة تعريفية</p>
+    <p>{craftsman.description}</p>
+  </div>
+</Card>
+
+
+            {/* معرض الأعمال */}
+            <Card>
+              <h3 className="font-bold text-lg mb-4">معرض أعمالك</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {craftsman.workImages.map((img: string, i: number) => (
+                  <motion.img key={i} whileHover={{ scale: 1.05 }} src={img} className="rounded-xl shadow" />
+                ))}
+              </div>
+            </Card>
+             {/* معرض الأعمال */}
+            <Card>
+              <h3 className="font-bold text-lg mb-4">صورة البطاقه</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <img src={craftsman?.idCardImage || "/avatar.png"} className="rounded-xl shadow"  />
+
+              </div>
+            </Card>
+          </>
+        )}
+      </main>
     </div>
   );
 }
+
+const Card = ({ children }: any) => (
+  <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} className="bg-white p-6 rounded-2xl shadow">
+    {children}
+  </motion.div>
+);
+
+const StatCard = ({ title, value }: any) => (
+  <div className="bg-white p-6 rounded-2xl shadow text-center">
+    <p className="text-gray-500 text-sm">{title}</p>
+    <h2 className="text-2xl font-bold mt-2">{value}</h2>
+  </div>
+);

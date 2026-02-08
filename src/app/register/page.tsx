@@ -187,8 +187,14 @@ return (
               <input name="experienceYears" onChange={handleChange} placeholder="سنين الخبرة" className="input" />
               <input name="address" onChange={handleChange} placeholder="العنوان" className="input" />
 
+                          <br/>
+            <label className="font-bold mt-2">صورة البطاقة </label>
               <input type="file" onChange={(e) => setIdCardImage(e.target.files?.[0] || null)} />
+                          <br/>
+            <label className="font-bold mt-2">الصورة الشخصية (اختياري)</label>
               <input type="file" onChange={(e) => setProfileImage(e.target.files?.[0] || null)} />
+            <br/>
+             <label className="font-bold mt-2">صور الشغل الجديدة (اختياري)</label>
               <input type="file" multiple onChange={(e) => setWorkImages(e.target.files)} />
             </div>
           )}

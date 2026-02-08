@@ -169,9 +169,10 @@ export default function EditProfile() {
 
             <label className="font-bold mt-2">صورة البطاقة (اختياري)</label>
             <input type="file" onChange={(e) => setNewIdCard(e.target.files?.[0] || null)} />
-
+            <br/>
             <label className="font-bold mt-2">الصورة الشخصية (اختياري)</label>
             <input type="file" onChange={(e) => setNewProfileImg(e.target.files?.[0] || null)} />
+            <br/>
 
             <label className="font-bold mt-2">صور الشغل الجديدة (اختياري)</label>
             <input type="file" multiple onChange={(e) => setNewWorkImages(e.target.files)} />

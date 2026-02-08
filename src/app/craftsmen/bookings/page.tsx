@@ -1,3 +1,4 @@
+//app/craftsmen/bookings
 "use client";
 
 import { useEffect, useState } from "react";
@@ -30,8 +31,9 @@ export default function CraftsmanBookings() {
 
       {list.map((b: any) => (
         <div key={b._id} className="bg-slate-900 p-4 rounded-xl border border-slate-700 mb-3">
-          <h2 className="font-bold">{b.clientId?.name}</h2>
-          <p className="text-sm text-slate-400">{b.clientId?.phone}</p>
+<h2 className="font-bold">{b.userId?.name}</h2>
+<p className="text-sm text-slate-400">{b.userId?.phone}</p>
+
           <p className="mt-2">
             حالة الطلب:{" "}
             <span

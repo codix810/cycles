@@ -1,3 +1,4 @@
+//app/api/admin/bookings
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import Booking from "@/models/Booking";

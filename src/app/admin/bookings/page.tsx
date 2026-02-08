@@ -1,120 +1,119 @@
 "use client";
-
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 
 export default function AdminBookings() {
-  const [list, setList] = useState([]);
-  const [load, setLoad] = useState(true);
+  const [list, setList] = useState<any[]>([]);
+  const [tab, setTab] = useState("pending");
+  const [reply, setReply] = useState<{ [key: string]: string }>({});
+  const [toast, setToast] = useState("");
 
   const fetchData = async () => {
     const res = await fetch("/api/admin/bookings");
     const data = await res.json();
     setList(data.bookings || []);
-    setLoad(false);
   };
 
-  useEffect(() => {
+  useEffect(() => { fetchData(); }, []);
+
+  const action = async (url: string, msg: string) => {
+    await fetch(url, { method: "PUT" });
+    setToast(msg);
     fetchData();
-  }, []);
+    setTimeout(() => setToast(""), 3000);
+  };
 
-const approve = async (id: string) => {
-  await fetch(`/api/admin/bookings/approve/${id}`, { method: "PUT" });
-  fetchData();
-};
+  const sendReply = async (id: string) => {
+    await fetch(`/api/admin/bookings/reply/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({ message: reply[id] }),
+    });
+    setToast("تم إرسال الرسالة للصنايعي بنجاح");
+    fetchData();
+    setTimeout(() => setToast(""), 3000);
+  };
 
-
-const reject = async (id: string) => {
-  await fetch(`/api/admin/bookings/reject/${id}`, { method: "PUT" });
-  fetchData();
-};
-
-
-  if (load)
-    return (
-      <div className="min-h-screen flex items-center justify-center text-white">
-        جاري التحميل...
-      </div>
-    );
+  const filtered = list.filter(b => b.status === tab);
 
   return (
-    <div className="p-6 min-h-screen bg-slate-950 text-slate-100">
-      <h1 className="text-3xl font-bold mb-6">طلبات الصنايعية</h1>
+    <div className="p-8 bg-slate-950 min-h-screen text-white mt-20">
 
-      {list.length === 0 && (
-        <p className="text-slate-400 text-center mt-20">
-          لا توجد طلبات حالياً
-        </p>
+      {toast && (
+        <div className="fixed top-5 right-5 bg-emerald-600 px-4 py-2 rounded-xl shadow-lg">
+          {toast}
+        </div>
       )}
 
-      <div className="grid gap-4">
-        {list.map((b: any) => (
-          <motion.div
-            key={b._id}
-            whileHover={{ scale: 1.02 }}
-            className="bg-slate-900 border border-slate-700 rounded-2xl p-4"
+      <h1 className="text-3xl font-bold mb-6">إدارة الطلبات</h1>
+
+      {/* Tabs */}
+      <div className="flex gap-4 mb-6">
+        {["pending","approved","rejected"].map(t => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`px-4 py-2 rounded-xl ${tab===t ? "bg-sky-600" : "bg-slate-800"}`}
           >
-            <h2 className="font-bold text-lg">
-              العميل: {b.userId?.name}
-            </h2>
+            {t === "pending" && "قيد الانتظار"}
+            {t === "approved" && "المقبولة"}
+            {t === "rejected" && "المرفوضة"}
+          </button>
+        ))}
+      </div>
 
-            <p className="text-sm text-slate-400">
-              رقم الهاتف: {b.userId?.phone}
-            </p>
+      {/* Cards */}
+      <div className="grid gap-5">
+        {filtered.map(b => (
+          <div key={b._id} className="bg-slate-900 border border-slate-700 p-5 rounded-2xl shadow">
 
-            <div className="mt-3 p-3 bg-slate-800 rounded-xl">
-              <p className="font-semibold text-sky-300">الصنايعي المطلوب:</p>
-              <p>{b.craftsmanId?.userId?.name}</p>
-              <p className="text-xs text-slate-400">المجال: {b.craftsmanId?.jobTitle}</p>
-<p className="text-xs text-slate-400">
-  رقم الصنايعي: {b.craftsmanId?.userId?.phone}
-</p>
-
-<p className="text-xs text-slate-400">
-  إيميل الصنايعي: {b.craftsmanId?.userId?.email}
-</p>
-
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="font-semibold text-lg">{b.userId?.name}</p>
+                <p className="text-sm text-slate-400">{b.craftsmanId?.userId?.name}</p>
+              </div>
+              <span className="text-xs px-3 py-1 rounded bg-slate-800">{b.status}</span>
             </div>
 
-            <p className="mt-3">
-              حالة الطلب:{" "}
-<span className={b.status === "pending" ? "text-amber-400" : "text-emerald-400"}>
-  {b.status === "pending" && "قيد الانتظار"}
-{b.status === "approved" && "تمت الموافقة"}
-{b.status === "rejected" && "تم الرفض"}
+            {b.craftsmanReply && (
+              <div className="mt-3 bg-slate-800 p-3 rounded-xl text-sm">
+                💬 {b.craftsmanReply} — 💰 {b.price}
+              </div>
+            )}
 
-</span>
+            {/* Buttons */}
+            <div className="flex gap-3 mt-4">
+              {b.status !== "approved" && (
+                <button
+                  onClick={() => action(`/api/admin/bookings/approve/${b._id}`, "تمت الموافقة بنجاح")}
+                  className="bg-emerald-600 px-3 py-1 rounded-lg"
+                >
+                  موافقة
+                </button>
+              )}
 
-            </p>
+              {b.status !== "rejected" && (
+                <button
+                  onClick={() => action(`/api/admin/bookings/reject/${b._id}`, "تم رفض الطلب")}
+                  className="bg-red-600 px-3 py-1 rounded-lg"
+                >
+                  رفض
+                </button>
+              )}
+            </div>
 
-{b.status === "approved" && (
-  <button
-    onClick={() => reject(b._id)}
-    className="mt-4 bg-red-600 px-4 py-2 rounded-xl"
-  >
-     رفض الطلب
-  </button>
-)}
-{b.status === "pending" &&  (
-  <button
-    onClick={() => approve(b._id)}
-    
-    className="mt-4 bg-emerald-600 px-4 py-2 rounded-xl"
-  >
-    موافقة على الطلب
-  </button>
-)}
+            {/* Reply */}
+            <textarea
+              placeholder="اكتب ردك للصنايعي..."
+              className="w-full mt-4 p-2 rounded bg-slate-800"
+              onChange={e => setReply({ ...reply, [b._id]: e.target.value })}
+            />
 
-{b.status === "rejected" && (
-  <button
-    onClick={() => approve(b._id)}
-    className="mt-4 bg-emerald-600 px-4 py-2 rounded-xl"
-  >
-    موافقة على الطلب
-  </button>
-)}
-
-       </motion.div>
+            <button
+              onClick={() => sendReply(b._id)}
+              className="mt-2 bg-sky-600 px-4 py-2 rounded-xl"
+            >
+              إرسال رسالة
+            </button>
+          </div>
         ))}
       </div>
     </div>

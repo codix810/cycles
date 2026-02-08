@@ -31,7 +31,7 @@ const links = useMemo<NavLink[]>(() => {
     const common = [
       { href: "/", label: "الرئيسية", show: true },
       { href: "/craftsmen", label: "الصنايعية", show: role === "client" },
-      { href: "/my-work", label: "شغلي", show: role === "craftsman" },
+      { href: "/craftsmen/my-work", label: "شغلي", show: role === "craftsman" },
       { href: "/admin", label: "لوحة التحكم", show: role === "admin" },
       { href: "/admin/bookings", label: "الحجوزات", show: role === "admin" },
       { href: "/profile", label: "حسابي", show: role !== "guest" },
@@ -56,7 +56,16 @@ const buttonLink =
   const handleNavClick = () => setOpen(false);
 
   return (
-    <header className="w-full bg-liner shadow-md fixed top-0 left-0 z-50">
+<header
+  className={`
+    w-full fixed top-0 left-0 z-50
+    backdrop-blur-md
+    ${scrolled
+      ? "bg-white/90 shadow-lg"
+      : "bg-black/60 shadow-md"}
+    transition-all duration-300
+  `}
+>
       <nav className="max-w-6xl mx-auto flex items-center justify-between p-4">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-3">

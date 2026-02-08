@@ -6,8 +6,7 @@ import { checkAdminAuth } from "@/lib/checkAdminAuth";
 export async function PUT(req: Request, context: any) {
   await dbConnect();
 
-  // حل مشكلة Promise params
-  const { id } = await context.params;
+  const { id } = await context.params; // ✅ لازم await
 
   const auth = await checkAdminAuth();
   if (!auth.ok) return auth.response;
@@ -17,6 +16,8 @@ export async function PUT(req: Request, context: any) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   booking.status = "approved";
+  booking.adminMessage = "";
+  booking.craftsmanReply = "";
   await booking.save();
 
   return NextResponse.json({ message: "Approved" });

@@ -1,3 +1,4 @@
+//lib/auth.ts
 import { RequestCookies } from "next/dist/compiled/@edge-runtime/cookies";
 const jwt = require("jsonwebtoken");
 
