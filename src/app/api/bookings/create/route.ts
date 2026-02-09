@@ -15,7 +15,7 @@ console.log("COOKIE:", req.headers.get("cookie"));
 
     const userId = auth.userId;
 
-    const { craftsmanId, details } = await req.json();
+const { craftsmanId, details, price } = await req.json();
 
     if (!craftsmanId)
       return NextResponse.json({ error: "craftsmanId مطلوب" }, { status: 400 });
@@ -24,12 +24,15 @@ console.log("COOKIE:", req.headers.get("cookie"));
     if (!craftsman)
       return NextResponse.json({ error: "الصنايعي غير موجود" }, { status: 404 });
 
-    const booking = await Booking.create({
-      userId,
-      craftsmanId,
-      details: details || "طلب التواصل مع الصنايعي",
-      status: "pending",
-    });
+
+const booking = await Booking.create({
+  userId,
+  craftsmanId,
+  details,
+  price,
+  status: "pending",
+});
+
 
     return NextResponse.json({ message: "تم إرسال الطلب", booking });
   } catch (err: any) {

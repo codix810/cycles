@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import Booking from "@/models/Booking";
-//import Review from "@/models/Review";
+import Review from "@/models/Review";
 import Craftsman from "@/models/Craftsman";
 import { checkAuth } from "@/lib/checkAuth";
 
@@ -36,11 +36,11 @@ export async function GET() {
     { $group: { _id: null, total: { $sum: "$price" } } },
   ]);
 
-  //const reviews = await Review.find({ craftsmanId: craftsman._id });
-  //const rating =
-  //  reviews.length > 0
-  //    ? (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length).toFixed(1)
-  //    : "0";
+  const reviews = await Review.find({ craftsmanId: craftsman._id });
+  const rating =
+    reviews.length > 0
+      ? (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length).toFixed(1)
+      : "0";
 
   return NextResponse.json({
     //rating,

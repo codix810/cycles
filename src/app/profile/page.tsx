@@ -2,17 +2,38 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { getCraftsmenRatings } from "@/lib/reviewService";
 
 export default function ProfilePage() {
   const [data, setData] = useState<any>(null);
 const [stats, setStats] = useState<any>(null);
 const [userStats, setUserStats] = useState<any>(null);
+const [ratingStats, setRatingStats] = useState({ avg: 0, count: 0 });
 
 useEffect(() => {
-  fetch("/api/profile").then(r => r.json()).then(setData);
-  fetch("/api/craftsmen/stats").then(r => r.json()).then(setStats);
-    fetch("/api/user/stats").then(r => r.json()).then(setUserStats);
+  const init = async () => {
+    const profile = await fetch("/api/profile").then(r => r.json());
+    setData(profile);
 
+    const s = await fetch("/api/craftsmen/stats").then(r => r.json());
+    setStats(s);
+
+    const us = await fetch("/api/user/stats").then(r => r.json());
+    setUserStats(us);
+
+    if (profile.role === "craftsman" && profile.craftsman?._id) {
+      const r = await getCraftsmenRatings([profile.craftsman._id]);
+      const stat = r.stats[0];
+      if (stat) {
+        setRatingStats({
+          avg: Number(stat.avg.toFixed(1)),
+          count: stat.count
+        });
+      }
+    }
+  };
+
+  init();
 }, []);
 
 
@@ -28,8 +49,10 @@ useEffect(() => {
       <aside className="w-72 bg-[#0F766E] text-white p-6 hidden md:flex flex-col">
         <div className="text-center mb-8">
           <img src={craftsman?.profileImage || "/avatar.png"} className="w-24 h-24 mx-auto rounded-full border-4 border-white" />
-          <h2 className="mt-3 font-bold text-lg">{user.name}</h2>
+          <h2 className="mt-1 font-bold text-lg">{user.name}</h2>
+
           <p className="text-sm opacity-80">{role === "craftsman" ? craftsman.jobTitle : "مستخدم"}</p>
+          
         </div>
 
         <nav className="space-y-3 text-sm">
@@ -37,7 +60,7 @@ useEffect(() => {
           <Link href="/profile/edit" className="block hover:bg-white/10 p-2 rounded">تعديل البيانات</Link>
           {role === "craftsman" && (
             <>
-              <Link href="/craftsman/bookings" className="block hover:bg-white/10 p-2 rounded">الطلبات</Link>
+              <Link href="/craftsman/my-work" className="block hover:bg-white/10 p-2 rounded">الطلبات</Link>
               <Link href="/craftsman/services" className="block hover:bg-white/10 p-2 rounded">الخدمات</Link>
             </>
           )}
@@ -52,6 +75,8 @@ useEffect(() => {
         <div className="bg-white rounded-2xl shadow p-6 flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold">مرحباً، {user.name}</h1>
+                      <h4 className="mt-1 font-bold text-sm">{user.phone}</h4>
+          <h4 className="mt-1 font-bold text-sm">{user.email}</h4>
             <p className="text-gray-500">{role === "craftsman" ? "لوحة تحكم الصنايعي" : "لوحة تحكم المستخدم"}</p>
           </div>
           <Link href="/profile/edit" className="bg-teal-600 text-white px-4 py-2 rounded-xl">تعديل</Link>
@@ -72,7 +97,10 @@ useEffect(() => {
 
           <>
    <div className="grid md:grid-cols-4 gap-6">
-    <StatCard title="التقييم" value={`⭐ ${stats.rating}`} />
+<StatCard
+  title="التقييم"
+  value={`⭐ ${ratingStats.avg || "جديد"} (${ratingStats.count})`}
+/>
     <StatCard title="طلبات منجزة" value={stats.completed} />
     <StatCard title="طلبات قيد التنفيذ" value={stats.inProgress} />
     <StatCard title="إجمالي الأرباح" value={`₺ ${stats.earnings}`} />

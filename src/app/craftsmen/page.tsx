@@ -1,125 +1,142 @@
-"use client";
-
+ "use client";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-
-type Craftsman = {
-  _id: string;
-  jobTitle: string;
-  description: string;
-  experienceYears: number;
-  address: string;
-  status: "available" | "busy";
-  isApproved: boolean;
-  profileImage: string;
-  workImages: string[];
-  userId: {
-    name: string;
-    email: string;
-    phone: string;
-  };
-};
+import { MapPin, Star } from "lucide-react";
+import Image from "next/image";
+import Heroimage from "../../assets/images/hero.jpg";
+import { getCraftsmenRatings } from "@/lib/reviewService";
 
 export default function CraftsmenPage() {
-  const [craftsmen, setCraftsmen] = useState<Craftsman[]>([]);
-  const [filtered, setFiltered] = useState<Craftsman[]>([]);
-  const [search, setSearch] = useState("");
+  const [list, setList] = useState<any[]>([]);
+const [ratings, setRatings] = useState<any>({});
 
-  const loadData = async () => {
-    const res = await fetch("/api/craftsmen");
-    const data = await res.json();
-    setCraftsmen(data.craftsmen);
-    setFiltered(data.craftsmen);
-  };
+useEffect(() => {
+  fetch("/api/craftsmen")
+    .then(r => r.json())
+    .then(async d => {
+      setList(d.craftsmen);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+      const ids = d.craftsmen.map((c:any) => c._id);
+      const ratingData = await getCraftsmenRatings(ids);
 
-  const handleSearch = (txt: string) => {
-    setSearch(txt);
+      const map:any = {};
+      ratingData.stats.forEach((r:any) => {
+        map[r._id] = {
+          avg: r.avg.toFixed(1),
+          count: r.count
+        };
+      });
 
- const result = craftsmen.filter((c) =>
-  (c.userId?.name?.toLowerCase() || "").includes(txt.toLowerCase()) ||
-  c.jobTitle.toLowerCase().includes(txt.toLowerCase())
-);
+      setRatings(map);
+    });
+}, []);
 
-    setFiltered(result);
-  };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-6">
-      <h1 className="text-3xl font-bold text-center mb-6">
-        ابحث عن الصنايعية
-      </h1>
+    <div className="bg-[#f3f4f6] min-h-screen pt-24 pb-16 mt-20">
 
-      {/* Search Input */}
-      <div className="max-w-xl mx-auto mb-8">
-        <input
-          type="text"
-          placeholder="ابحث بالاسم أو مجال العمل..."
-          value={search}
-          onChange={(e) => handleSearch(e.target.value)}
-          className="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 outline-none text-sm"
-        />
+      {/* ===== HERO ===== */}
+      <div className="relative h-56 md:h-64 bg-[#0D9488] flex items-center justify-center text-white relative h-[90vh] w-full overflow-hidden">
+        <div className="absolute inset-0  opacity-20 bg-cover " />
+                <Image src={Heroimage} alt="Hero background" fill priority className="object-cover" />
+        
+        <div className="relative text-center">
+          <h1 className="text-4xl font-bold">الصنايعية</h1>
+          <p className="text-sm mt-2 opacity-90">اختر أفضل الصنايعية في منطقتك</p>
+        </div>
       </div>
 
-      {/* Craftsmen List */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filtered.map((c) => (
+      {/* ===== FILTER BAR ===== */}
+      <div className="max-w-6xl mx-auto -mt-10 bg-white p-4 rounded-2xl shadow flex flex-wrap gap-4 items-center justify-between">
+        <select className="border border-gray-200 p-2 rounded-lg text-sm">
+          <option>جميع التخصصات</option>
+        </select>
+
+        <select className="border border-gray-200 p-2 rounded-lg text-sm">
+          <option>جميع المناطق</option>
+        </select>
+
+        <select className="border border-gray-200 p-2 rounded-lg text-sm">
+          <option>الخبرة</option>
+        </select>
+
+        <button className="bg-[#0D9488] text-white px-6 py-2 rounded-lg font-semibold">
+          بحث
+        </button>
+      </div>
+
+      {/* ===== TITLE ===== */}
+      <div className="max-w-6xl mx-auto mt-10 mb-6 px-4">
+        <h2 className="text-2xl font-bold text-gray-800">قائمة الصنايعية</h2>
+      </div>
+
+      {/* ===== CARDS ===== */}
+      <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        {list.map((c) => (
           <motion.div
             key={c._id}
-            whileHover={{ scale: 1.02 }}
-            className="bg-slate-900 border border-slate-700 rounded-2xl p-4 shadow-lg"
+            whileHover={{ y: -4 }}
+            className="bg-white p-4 rounded-2xl shadow hover:shadow-lg transition relative"
           >
-            <div className="flex items-center gap-4">
-    <img
-  src={c.profileImage || "/default-avatar.png"}
-  className="w-14 h-14 rounded-full object-cover"
-  alt="craftsman"
-/>
-
-
-              <div>
-<p className="font-semibold">{c.userId?.name || "غير معروف"}</p>
-                <p className="text-slate-400 text-xs">{c.jobTitle}</p>
-
-                <span
-                  className={`text-xs px-2 py-1 rounded-full mt-1 inline-block ${
-                    c.status === "available"
-                      ? "bg-emerald-500/20 text-emerald-300"
-                      : "bg-amber-500/20 text-amber-300"
-                  }`}
-                >
-                  {c.status === "available" ? "متاح" : "مشغول"}
-                </span>
-              </div>
-            </div>
-
-            {/* Description */}
-            <p className="text-xs text-slate-400 mt-3 line-clamp-3">
-              {c.description}
-            </p>
-
-            {/* Work Images */}
-            {c.workImages.length > 0 && (
-              <div className="grid grid-cols-3 gap-2 mt-3">
-                {c.workImages.slice(0, 3).map((img, i) => (
-                  <img
-                    key={i}
-                    src={img}
-                    className="w-full h-20 rounded-xl object-cover"
-                  />
-                ))}
+            {/* Verified Badge */}
+            {c.isApproved && (
+              <div className="absolute top-3 left-3 bg-emerald-100 text-emerald-600 text-xs px-2 py-1 rounded-full font-semibold">
+                موثق
               </div>
             )}
 
-            {/* View Button */}
+            {/* Avatar */}
+            <div className="flex justify-center -mt-10">
+              <img
+                src={c.profileImage}
+                className="w-20 h-20 rounded-full border-4 border-white shadow object-cover"
+              />
+            </div>
+
+            {/* Info */}
+            <div className="text-center mt-3">
+              <h3 className="font-bold text-gray-800">{c.userId.name}</h3>
+              <p className="text-xs text-gray-500">{c.jobTitle}</p>
+            </div>
+
+            {/* Rating */}
+            <div className="flex justify-center items-center gap-1 mt-2 text-sm">
+              <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+<span className="font-semibold text-gray-700">
+  {ratings[c._id]?.avg || "جديد"}
+</span>
+<span className="text-gray-400 text-xs">
+  ({ratings[c._id]?.count || 0})
+</span>
+
+            </div>
+
+            {/* Location */}
+            <div className="flex justify-center items-center gap-1 text-gray-400 text-xs mt-1">
+              <MapPin className="w-3 h-3" />
+              {c.address}
+            </div>
+
+            {/* Status */}
+            <div className="text-center mt-2">
+              <span
+                className={`text-xs px-3 py-1 rounded-full ${
+                  c.status === "available"
+                    ? "bg-emerald-100 text-emerald-600"
+                    : "bg-amber-100 text-amber-600"
+                }`}
+              >
+                {c.status === "available" ? "متاح الآن" : "مشغول"}
+              </span>
+            </div>
+
+            {/* Button */}
             <a
               href={`/craftsmen/${c._id}`}
-              className="block mt-4 text-center bg-sky-600 hover:bg-sky-700 py-2 rounded-xl text-sm font-bold"
+              className="block mt-4 text-center bg-[#0D9488] hover:bg-teal-700 text-white py-2 rounded-xl text-sm font-bold"
             >
-              عرض التفاصيل
+              طلب الآن
             </a>
           </motion.div>
         ))}
