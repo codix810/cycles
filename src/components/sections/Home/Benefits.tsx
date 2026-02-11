@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 type BenefitCardProps = {
   title: string;
@@ -28,6 +29,7 @@ const craftsmanBenefits: string[] = [
 ];
 
 const BenefitCard: React.FC<BenefitCardProps> = ({
+
   title,
   subtitle,
   items,
@@ -109,6 +111,8 @@ const BenefitCard: React.FC<BenefitCardProps> = ({
 };
 
 const Benefits: React.FC = () => {
+      const router = useRouter();
+
   return (
     <section className="bg-gray-50 py-20">
       <div className="mx-auto max-w-7xl px-4">
@@ -135,6 +139,7 @@ const Benefits: React.FC = () => {
             items={clientBenefits}
             badge="Client"
             accentColor="#0D9488"
+            onCtaClick={() => router.push("/register")}   // 🔥 هنا الشغل
           />
 
           {/* ✅ الصنايعي باللون البرتقالي */}
@@ -144,6 +149,7 @@ const Benefits: React.FC = () => {
             items={craftsmanBenefits}
             badge="Craftsman"
             accentColor="#EA580C"
+            onCtaClick={() => router.push("/register")}   // 🔥 هنا الشغل
           />
         </div>
       </div>
