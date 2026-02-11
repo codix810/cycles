@@ -1,10 +1,13 @@
-
+"use client";
 
 import Image from "next/image";
 import React from "react";
 import join from "../../../assets/images/joinUs.png";
+import { useRouter } from "next/navigation";
 
 const JoinUs = () => {
+    const router = useRouter();
+
   return (
     <section className="relative h-[500px] md:h-[600px] w-full flex items-center justify-center">
       {/* Background Image */}
@@ -26,10 +29,14 @@ const JoinUs = () => {
 
         {/* Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <button className="bg-[#0D9488] text-white px-6 py-3 rounded-2xl font-semibold hover:bg-[#0b7c72] transition">
+          <button 
+          onClick={() => router.push("/register")}
+          className="bg-[#0D9488] text-white px-6 py-3 rounded-2xl font-semibold hover:bg-[#0b7c72] transition">
             سجل كصنايعي
           </button>
-          <button className="bg-white text-gray-900 px-6 py-3 rounded-2xl font-semibold hover:bg-gray-200 transition">
+          <button 
+          onClick={() => router.push("/how-it-works")}
+          className="bg-white text-gray-900 px-6 py-3 rounded-2xl font-semibold hover:bg-gray-200 transition">
             شاهد كيف تعمل المنصة
           </button>
         </div>
