@@ -7,6 +7,8 @@ const BookingSchema = new Schema(
     details: { type: String, required: true },
 
     // حالة الطلب
+expiresAt: { type: Date },
+isCancelled: { type: Boolean, default: false },
 
    status: {
   type: String,
