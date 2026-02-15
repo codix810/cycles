@@ -25,12 +25,16 @@ const { craftsmanId, details, price } = await req.json();
       return NextResponse.json({ error: "الصنايعي غير موجود" }, { status: 404 });
 
 
+
+const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1000);
+
 const booking = await Booking.create({
   userId,
   craftsmanId,
   details,
   price,
   status: "pending",
+  expiresAt,
 });
 
 
