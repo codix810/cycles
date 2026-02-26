@@ -10,62 +10,60 @@ const cairo = Cairo({
   display: "swap",
 });
 
+const SITE_URL = "https://sanayie.vercel.app"; // ← غيره بدومينك الحقيقي
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://sanayie.com"),
+  metadataBase: new URL(SITE_URL),
 
   title: {
-    default: "صنايعي | Sanayie - أفضل منصة للعثور على الصنايعية والحرفيين",
+    default: "صنايعي | ابحث عن أفضل الحرفيين في منطقتك",
     template: "%s | صنايعي",
   },
 
   description:
-    "صنايعي هي منصة ذكية تساعدك في العثور على أفضل الصنايعية والحرفيين الموثوقين بالقرب منك بسرعة وأمان. احجز سباك، كهربائي، نجار، نقاش وغيرهم خلال دقائق. Sanayie connects you with trusted local craftsmen instantly.",
+    "صنايعي منصة ذكية تربطك بأفضل الصنايعية والحرفيين الموثقين بالقرب منك. احجز سباك، كهربائي، نجار، نقاش والمزيد بسهولة وأمان.",
 
   keywords: [
     "صنايعي",
     "حجز صنايعي",
-    "أفضل سباك",
-    "كهربائي قريب",
-    "نجار محترف",
+    "سباك",
+    "كهربائي",
+    "نجار",
     "خدمات منزلية",
-    "craftsmen egypt",
-    "handyman near me",
+    "craftsmen",
+    "handyman egypt",
     "home services egypt",
   ],
 
   openGraph: {
-    title:
-      "صنايعي | احجز أفضل الصنايعية والحرفيين في منطقتك خلال دقائق",
+    title: "صنايعي | أفضل منصة للحرفيين في مصر",
     description:
-      "ابحث وقارن واحجز أفضل الصنايعية الموثوقين بسهولة. تقييمات حقيقية، سرعة في الوصول، وخدمة آمنة بالكامل عبر منصة صنايعي.",
-    url: "https://sanayie.com",
+      "ابحث واحجز أفضل الصنايعية الموثقين في منطقتك خلال دقائق عبر منصة صنايعي.",
+    url: SITE_URL,
     siteName: "صنايعي",
     locale: "ar_EG",
     type: "website",
 
     images: [
       {
-        url: "https://sanayie.com/og.jpg",
+        url: `${SITE_URL}/icon.png`, // لازم absolute
         width: 1200,
         height: 630,
-        alt: "منصة صنايعي - Sanayie Platform",
+        alt: "منصة صنايعي",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "Sanayie | منصة صنايعي",
-    description:
-      "أفضل منصة للعثور على الحرفيين والصنايعية بسهولة وأمان.",
-    images: ["https://sanayie.com/og.jpg"],
+    title: "صنايعي | Sanayie",
+    description: "منصة حجز الصنايعية والحرفيين في مصر.",
+    images: [`${SITE_URL}/icon.png`],
   },
 
   icons: {
-    icon: [
-      { url: "/icon.png", sizes: "32x32", type: "image/png" },
-      { url: "/icon.png", sizes: "192x192", type: "image/png" },
-    ],
+    icon: "/icon.png",
+    shortcut: "/icon.png",
     apple: "/icon.png",
   },
 
@@ -75,8 +73,11 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      "max-image-preview": "large",
     },
+  },
+
+  alternates: {
+    canonical: SITE_URL,
   },
 };
 
@@ -86,11 +87,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ar">
+    <html lang="ar" >
       <body className={`${cairo.className} antialiased`}>
         <NavWrapper />
         <main>{children}</main>
         <Footer />
+
+        {/* ⭐ Structured Data (Google Rich Result) */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "صنايعي",
+              url: SITE_URL,
+              description:
+                "منصة تربطك بأفضل الصنايعية والحرفيين في مصر بسهولة وأمان.",
+              potentialAction: {
+                "@type": "SearchAction",
+                target: `${SITE_URL}/craftsmen?search={search_term_string}`,
+                "query-input": "required name=search_term_string",
+              },
+            }),
+          }}
+        />
       </body>
     </html>
   );
