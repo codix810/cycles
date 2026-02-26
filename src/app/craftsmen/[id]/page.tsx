@@ -92,6 +92,9 @@ const sendReview = async () => {
           <div className="flex-1">
             <h1 className="text-2xl font-bold">{craftsman.userId.name}</h1>
             <p className="text-gray-500">{craftsman.jobTitle}</p>
+            <p className="text-gray-500"> العنوان   :  {craftsman.address} </p>
+            <p className="text-gray-500"> {craftsman.experienceYears} :خبرة </p>
+            <p className="text-gray-500">{craftsman.description}</p>
 
             <div className="flex items-center mt-2">
 {[1,2,3,4,5].map(s => (

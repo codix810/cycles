@@ -178,14 +178,27 @@ return (
             onChange={handleChange}
             className="w-full border p-3 rounded-xl focus:ring-2 focus:ring-[#0D9488] outline-none"
           />
+              <input 
+              name="address" 
+              onChange={handleChange}
+               placeholder="العنوان" 
+              className="w-full border p-3 rounded-xl focus:ring-2 focus:ring-[#0D9488] outline-none"
+                />
 
           {/* Craftsman Fields */}
           {role === "craftsman" && (
-            <div className="space-y-4">
-              <input name="jobTitle" onChange={handleChange} placeholder="مجال العمل" className="input" />
-              <input name="description" onChange={handleChange} placeholder="الوصف" className="input" />
-              <input name="experienceYears" onChange={handleChange} placeholder="سنين الخبرة" className="input" />
-              <input name="address" onChange={handleChange} placeholder="العنوان" className="input" />
+            <div className="space-y-4">     
+                     <input name="description" onChange={handleChange} placeholder="الوصف"
+              className="w-full border p-3 rounded-xl focus:ring-2 focus:ring-[#0D9488] outline-none"
+                       />
+
+              <input name="jobTitle" onChange={handleChange} placeholder="مجال العمل" 
+                className=" border p-3 rounded-xl focus:ring-2 focus:ring-[#0D9488] outline-none"
+              />
+              <span>    </span>
+              <input name="experienceYears" onChange={handleChange} placeholder="سنين الخبرة" 
+                className=" border p-3 rounded-xl focus:ring-2 focus:ring-[#0D9488] outline-none"
+                />
 
                           <br/>
             <label className="font-bold mt-2">صورة البطاقة </label>

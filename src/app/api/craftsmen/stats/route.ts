@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/db";
 import Booking from "@/models/Booking";
+import Craftsman from "@/models/Craftsman";
 import { checkAuth } from "@/lib/checkAuth";
 
 export async function GET() {
@@ -9,27 +10,37 @@ export async function GET() {
   const auth: any = await checkAuth();
   if (!auth.ok) return auth.response;
 
-  const userId = auth.userId;
+  const craftsman = await Craftsman.findOne({
+    userId: auth.userId,
+  });
 
-  const total = await Booking.countDocuments({ userId });
+  if (!craftsman)
+    return NextResponse.json({});
 
+  // كل الطلبات اللي جتله
+  const totalRequests = await Booking.countDocuments({
+    craftsmanId: craftsman._id,
+    isCancelled: false,
+  });
+
+  // اللي الأدمن وافق عليها
+  const adminApproved = await Booking.countDocuments({
+    craftsmanId: craftsman._id,
+    status: "approved",
+  });
+
+  // المنجزة فعلاً
   const completed = await Booking.countDocuments({
-    userId,
+    craftsmanId: craftsman._id,
     status: "approved",
     craftsmanDecision: "accepted",
   });
 
-  const ongoing = await Booking.countDocuments({
-    userId,
-    status: "approved",
-    craftsmanDecision: { $ne: "declined" },
-  });
-
-  // 👇 هنا المهم — نجمع السعر اللي المستخدم كتبه
-  const spentAgg = await Booking.aggregate([
+  // الأرباح
+  const earningsAgg = await Booking.aggregate([
     {
       $match: {
-        userId,
+        craftsmanId: craftsman._id,
         status: "approved",
         craftsmanDecision: "accepted",
       },
@@ -43,9 +54,9 @@ export async function GET() {
   ]);
 
   return NextResponse.json({
-    total,
+    totalRequests,
+    adminApproved,
     completed,
-    ongoing,
-    spent: spentAgg[0]?.total || 0,
+    earnings: earningsAgg[0]?.total || 0,
   });
 }

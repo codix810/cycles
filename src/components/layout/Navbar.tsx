@@ -34,6 +34,7 @@ const links = useMemo<NavLink[]>(() => {
       { href: "/craftsmen/my-work", label: "شغلي", show: role === "craftsman" },
       { href: "/admin", label: "لوحة التحكم", show: role === "admin" },
       { href: "/admin/bookings", label: "الحجوزات", show: role === "admin" },
+      { href: "/admin/reviews", label: "التقييمات", show: role === "admin" },
       { href: "/profile", label: "حسابي", show: role !== "guest" },
     ];
 

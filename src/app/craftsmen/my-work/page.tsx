@@ -19,19 +19,26 @@ export default function MyWork() {
 
     <div className="flex justify-between">
       <div>
-        <p className="font-semibold">{job.userId.name}</p>
-        <p className="text-sm text-slate-400">{job.details}</p>
+        <p className="font-semibold">اسم الطالب:
+          {job.userId.name}</p>
+          <p className="text-sm text-slate-400"> العنوان :
+          {job.userId.address}</p>
+        <p className="text-sm text-slate-400">الوصف:
+          {job.details}</p>
+        <p className="text-sm text-slate-400"> التكلفه :
+          {job.price}</p>
+
       </div>
 
      {job.status === "pending" && (
   <span className="bg-amber-600 px-3 py-1 rounded text-xs">
-    ⏳ الطلب قيد مراجعة الأدمن
+     الطلب قيد مراجعة الأدمن
   </span>
 )}
 
 {job.status === "approved" && (
   <span className="bg-emerald-600 px-3 py-1 rounded text-xs">
-    ✅ تم اعتماد الطلب — كمل الاتفاق
+     تم اعتماد الطلب — كمل الاتفاق
   </span>
 )}
 

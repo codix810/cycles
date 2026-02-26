@@ -448,15 +448,25 @@ const deleteReview = async (id: string) => {
           {role === "craftsman" && craftsman && stats && (
 
           <>
-   <div className="grid md:grid-cols-4 gap-6">
-<StatCard
-  title="التقييم"
-  value={`⭐ ${ratingStats.avg || "جديد"} (${ratingStats.count})`}
-/>
-    <StatCard title="طلبات منجزة" value={stats.completed} />
-    <StatCard title="طلبات قيد التنفيذ" value={stats.inProgress} />
-    <StatCard title="إجمالي الأرباح" value={`₺ ${stats.earnings}`} />
+            <div className="grid md:grid-cols-1 gap-6">
+
+  <StatCard
+    title="التقييم"
+    value={`⭐ ${ratingStats.avg || "جديد"} (${ratingStats.count})`}
+  />
   </div>
+  <div className="grid md:grid-cols-4 gap-6">
+
+
+<StatCard title="كل الطلبات" value={stats.totalRequests} />
+
+<StatCard title="طلبات وافق عليها الأدمن" value={stats.adminApproved} />
+
+<StatCard title="طلبات منجزة" value={stats.completed} />
+
+<StatCard title="إجمالي الأرباح" value={`₺ ${stats.earnings}`} />
+
+</div>
 
             {/* نبذة */}
 <Card>
